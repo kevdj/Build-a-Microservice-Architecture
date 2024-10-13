@@ -138,29 +138,54 @@ docker push 139406489149.dkr.ecr.us-east-1.amazonaws.com/service-b-consumer:late
 
 ## 3. Create a Cluster, Task, and Task Definition in ECS
 
-1. Go to the **ECS Console** and create a new cluster called `Microservices-Cluster`.
-   - Select **Fargate**.
+The next steps involve the creation of a Cluster, Task, Task Definition, and deploying your services on AWS ECS. Follow these detailed steps:
 
-2. Create a task for Service A:
-   - Select **Service** as the application type.
-   - Create a **Task Definition** with Fargate as the launch type.
-   - Set up roles, network mode, and logging with CloudWatch.
-   - Add environment variables:
-     - Key: `QUEUE_URL`
-     - Value: The SQS queue URL for your service.
-   - Repeat for **Service B**.
+1. **Go to the ECS Console and Create a New Cluster:**
 
-3. Run tasks for both services and monitor logs in CloudWatch.
+   - Navigate to the [Amazon ECS Console](https://console.aws.amazon.com/ecs/home).
+   - Click on **"Clusters"** on the left panel and select **"Create Cluster"**.
+   - Name your cluster (e.g., `Microservices-Cluster`).
+   - For **Cluster Template**, select **Fargate**, which is a serverless compute engine for containers.
+   - Proceed with the rest of the settings as default, then click **"Create"**.
 
-### Possible Issues:
+2. **Create a Task Definition:**
 
-- **Failed Task Creation**: Ensure the SQS URL is correct in the Python code.
+   A Task Definition is like a blueprint for your Docker container, specifying the image, CPU/memory requirements, networking, and environment variables.
 
-- **Error faced**: 
-  ```bash
-  botocore.errorfactory.InvalidAddress: An error occurred (InvalidAddress) when calling the SendMessage operation: The address https://sqs.us-east-1.amazonaws.com/ is not valid for this endpoint.
-  ```
-  **Resolution**: Enter the correct SQS queue address in the Python code.
+   - In the ECS Console, navigate to **"Task Definitions"** and click on **"Create New Task Definition"**.
+   - Select **Fargate** as the **Launch Type**.
+   - For **Task Role**, choose a role that has the necessary permissions to interact with AWS services (like SQS). If you don’t have one, click **"Create New Role"** to create one automatically.
+   - **Network Mode**: Choose **awsvpc**. This gives each task its own network interface, providing full network isolation.
+   - In the **Task Execution Role**, choose an appropriate role or create a new one with the required permissions to access ECS services and resources.
+   - **Container Definitions**: 
+     - Define the URI for your Docker image that you uploaded to Amazon ECR (Elastic Container Registry).
+     - **Environment Variables**: Add your environment variables here.
+       - For **Service A**:
+         - Key: `QUEUE_URL`
+         - Value: The SQS queue URL for **Service A**.
+       - For **Service B**:
+         - Key: `QUEUE_URL`
+         - Value: The SQS queue URL for **Service B**.
+   - **Logging Configuration**: Enable logging by selecting **"Enable CloudWatch Logs"** and specify the log group name for your service.
+
+   Repeat these steps for both **Service A** and **Service B**.
+
+3. **Deploy and Run Tasks for Service A and Service B:**
+
+   - After defining the task, go to your **ECS Cluster** and click on **"Run Task"**.
+   - Select **Fargate** as the launch type.
+   - Select **Service** as the application type since we want the services to be constantly running.
+   - Choose the Task Definition you created for **Service A** and select the **latest revision**.
+   - Keep other configurations as default unless you have specific requirements for your setup.
+   - Click **"Create"** to run the task.
+
+   Repeat the same process for **Service B** using the task definition created for **Service B**.
+
+### Possible Issues and Troubleshooting:
+
+- **Failed Task Creation**: If the task fails to start, double-check that the SQS URL in the environment variables is correct. An incorrect URL can cause the task to fail during execution.
+  
+- **Logging and Monitoring**: After the task is successfully created and running, navigate to **CloudWatch Logs** to monitor the log output from both Service A and Service B.
 
 ## Monitoring CloudWatch Logs
 

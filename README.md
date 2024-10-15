@@ -3,6 +3,8 @@ Step-by-step guide to building a microservice architecture using Amazon Web Serv
 
 **Services used**: ECS, SQS, CloudWatch, Cloud9
 
+![Architectural Diagram](./microservice_architecture.png)
+
 ## 1. Create the Service Code
 
 We are going to be using 2 services, **ServiceA** and **ServiceB**. Below is the necessary code.
